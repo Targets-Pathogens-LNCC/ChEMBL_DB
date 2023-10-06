@@ -56,7 +56,7 @@ COPY public.filtered_chembl_33_IC50 TO '/Users/sulfierry/Desktop/thil/chemblDB/c
 ```bash
 CREATE TABLE public.kinase_ligand AS
 SELECT
--- Select the target's preferred name and label it as 'kinase_name'
+-- Select the targets preferred name and label it as 'kinase_name'
     t.pref_name AS kinase_name,                                             
 -- Count distinct ligands associated with the target and label the count as 'number_of_ligands'
     COUNT(DISTINCT act.molregno) AS number_of_ligands                     
