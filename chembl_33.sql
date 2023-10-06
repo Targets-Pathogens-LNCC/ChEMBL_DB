@@ -44,3 +44,7 @@ GROUP BY
 -- Exportar os dados para um arquivo .tsv
 COPY public.filtered_chembl_33_IC50 TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/filtered_chembl_33_IC50.tsv' WITH (FORMAT 'csv', DELIMITER E'\t', HEADER);
 
+
+— Para obter e salvar todas as cinases únicas (sem redundância) presentes na tabela kinase_ligand:
+COPY (SELECT DISTINCT kinase_name FROM public.kinase_ligand) TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/kinase_all_chembl_33.tsv' WITH CSV HEADER DELIMITER E'\t';
+
