@@ -48,23 +48,30 @@ CREATE TABLE public.filtered_chembl_33_IC50 AS (
 COPY public.filtered_chembl_33_IC50 TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/filtered_chembl_33_IC50.tsv' WITH (FORMAT 'csv', DELIMITER E'\t', HEADER);
 
 ```
+# Cria a tabela 'kinase_ligand' no schema 'public' de 'chembl_33'
 
 ```bash
--- Selecionar todos os compostos sem aplicar nenhum filtro e criar tabela persistente 'compounds_all'
-CREATE TABLE public.compounds_all AS
-SELECT molregno, canonical_smiles
-FROM public.compound_structures;
-
--- Salvar seleção em .tsv
-COPY (SELECT molregno, canonical_smiles FROM public.compound_structures) TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/chembl_33_molecules.tsv' WITH (FORMAT 'csv', DELIMITER E'\t', HEADER);
-
-... (insira aqui os outros comandos SQL em sequência)
-
--- Remover Base de Dados `chembl_23`
-DROP DATABASE chembl_23;
-
--- Excluir tabela (exemplo ‘kinase_all’)
-DROP TABLE public.kinase_all;
-
--- Examinando o esquema da tabela ‘kinase_ligand'
-\d public.kinase_ligand;
+CREATE TABLE public.kinase_ligand AS
+SELECT
+-- Seleciona o nome preferencial do alvo (target) e o nomeia como 'kinase_name' 
+    t.pref_name AS kinase_name,            			         
+-- Conta os ligantes distintos associados ao alvo e nomeia a contagem como 'number_of_ligands'
+    COUNT(DISTINCT act.molregno) AS number_of_ligands         
+FROM
+-- Tabela de atividades, que inclui informações sobre os ligantes e suas atividades 
+    activities act                       				      
+JOIN
+-- Junta com a tabela 'assays' para obter informações sobre o ensaio em que o ligante foi testado 
+    assays ass ON act.assay_id = ass.assay_id                
+JOIN
+-- Junta com a tabela 'target_dictionary' para obter informações sobre o alvo (target) 
+    target_dictionary t ON ass.tid = t.tid                                      
+WHERE
+-- Filtra para considerar apenas alvos que são proteínas individuais 
+    t.target_type = 'SINGLE PROTEIN' AND
+-- Filtra para considerar apenas alvos com nomes que contêm a palavra 'kinase'                              
+    t.pref_name LIKE '%kinase%'                                               
+GROUP BY
+-- Agrupa por nome preferencial do alvo para obter uma contagem única de ligantes por alvo 
+    t.pref_name;                                                                         
+```
