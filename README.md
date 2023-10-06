@@ -75,7 +75,7 @@ WHERE
 -- Filter to consider only targets with names containing the word 'kinase'
     t.pref_name LIKE '%kinase%'                                       
 GROUP BY
--- Group by the target's preferred name to get a unique count of ligands per target
+-- Group by the targets preferred name to get a unique count of ligands per target
     t.pref_name;
 
 -- Export the data to a .tsv file
