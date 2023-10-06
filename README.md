@@ -19,6 +19,8 @@ create database chembl_23;
 # Restaurar Banco de Dados
 pg_restore -U sulfierry -d chembl_23 --no-owner -n public ./chembl_23_postgresql.dmp
 ```
+
+```bash
 -- Iniciar o PostgreSQL e criar o banco de dados `chembl_23`
 psql -U seu_usuario
 create database chembl_23;
@@ -29,7 +31,7 @@ pg_restore -U sulfierry -d chembl_23 --no-owner -n public ./chembl_23_postgresql
 
 -- Listar Todas as Tabelas
 \dt OR \dt public.*
-
+```
 -- Selecionar todos os compostos sem aplicar nenhum filtro e criar tabela persistente 'compounds_all'
 CREATE TABLE public.compounds_all AS
 SELECT molregno, canonical_smiles
