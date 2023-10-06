@@ -1,39 +1,41 @@
 # ChEMBL_DB_exploring
 
-Explore o banco de dados ChEMBL com SQL.
+Explore the ChEMBL database using SQL.
+[Chembl_33](https://ftp.ebi.ac.uk/pub/databases/chembl/ChEMBLdb/latest/)
 
-## Instalação, Configuração e Comandos SQL
+
+## Installation, Configuration, and SQL Commands
 
 ```bash
-# Instalar PostgreSQL
+# Install PostgreSQL
 brew install postgresql
 
-# Iniciar PostgreSQL
+# Start PostgreSQL
 brew services start postgresql
 
-# Iniciar o PostgreSQL e criar o banco de dados `chembl_23`
-psql -U seu_usuario
+# Start PostgreSQL and create the `chembl_23` database
+psql -U your_user
 create database chembl_23;
 \q
 
-# Restaurar Banco de Dados
+# Restore Database
 pg_restore -U sulfierry -d chembl_23 --no-owner -n public ./chembl_23_postgresql.dmp
 ```
 
-## Selecionar todos os compostos sem aplicar nenhum filtro e criar tabela persistente 'compounds_all'
+## Select all compounds without any filter and create persistent table 'compounds_all'
 
 ```bash
 CREATE TABLE public.compounds_all AS
 SELECT molregno, canonical_smiles
 FROM public.compound_structures;
 
--- Salvar esta seleção em .tsv
+-- Save this selection in .tsv
 COPY (SELECT molregno, canonical_smiles FROM public.compound_structures) TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/chembl_33_molecules.tsv' WITH (FORMAT 'csv', DELIMITER E'\t', HEADER);
 
--- para visualizar a tabela recém criada
+-- to view the newly created table
 SELECT * FROM public.compounds_all;
 
--- Criar uma tabela persistente filtered_chembl_33
+-- Create a persistent table filtered_chembl_33
 CREATE TABLE public.filtered_chembl_33_IC50 AS (
     SELECT DISTINCT cs.molregno, cs.canonical_smiles
     FROM public.compound_records AS cr
@@ -44,94 +46,95 @@ CREATE TABLE public.filtered_chembl_33_IC50 AS (
     AND cs.canonical_smiles IS NOT NULL AND cs.canonical_smiles != ''
 );
 
--- Exportar os dados para um arquivo .tsv
+-- Export the data to a .tsv file
 COPY public.filtered_chembl_33_IC50 TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/filtered_chembl_33_IC50.tsv' WITH (FORMAT 'csv', DELIMITER E'\t', HEADER);
 
 ```
-## Cria a tabela 'kinase_ligand' no schema 'public' de 'chembl_33'
+## Create the 'kinase_ligand' table in the 'public' schema of 'chembl_33'
 
 ```bash
 CREATE TABLE public.kinase_ligand AS
 SELECT
--- Seleciona o nome preferencial do alvo (target) e o nomeia como 'kinase_name' 
-    t.pref_name AS kinase_name,            			         
--- Conta os ligantes distintos associados ao alvo e nomeia a contagem como 'number_of_ligands'
-    COUNT(DISTINCT act.molregno) AS number_of_ligands         
+-- Select the target's preferred name and label it as 'kinase_name'
+    t.pref_name AS kinase_name,                                             
+-- Count distinct ligands associated with the target and label the count as 'number_of_ligands'
+    COUNT(DISTINCT act.molregno) AS number_of_ligands                     
 FROM
--- Tabela de atividades, que inclui informações sobre os ligantes e suas atividades 
-    activities act                       				      
+-- Activities table, which includes information about ligands and their activities
+    activities act                                                          
 JOIN
--- Junta com a tabela 'assays' para obter informações sobre o ensaio em que o ligante foi testado 
-    assays ass ON act.assay_id = ass.assay_id                
+-- Join with 'assays' table to get information about the assay in which the ligand was tested
+    assays ass ON act.assay_id = ass.assay_id                            
 JOIN
--- Junta com a tabela 'target_dictionary' para obter informações sobre o alvo (target) 
-    target_dictionary t ON ass.tid = t.tid                                      
+-- Join with 'target_dictionary' table to get information about the target
+    target_dictionary t ON ass.tid = t.tid                              
 WHERE
--- Filtra para considerar apenas alvos que são proteínas individuais 
+-- Filter to consider only targets that are individual proteins
     t.target_type = 'SINGLE PROTEIN' AND
--- Filtra para considerar apenas alvos com nomes que contêm a palavra 'kinase'                              
-    t.pref_name LIKE '%kinase%'                                               
+-- Filter to consider only targets with names containing the word 'kinase'
+    t.pref_name LIKE '%kinase%'                                       
 GROUP BY
--- Agrupa por nome preferencial do alvo para obter uma contagem única de ligantes por alvo 
+-- Group by the target's preferred name to get a unique count of ligands per target
     t.pref_name;
 
--- Exportar os dados para um arquivo .tsv
+-- Export the data to a .tsv file
 COPY public.filtered_chembl_33_IC50 TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/filtered_chembl_33_IC50.tsv' WITH (FORMAT 'csv', DELIMITER E'\t', HEADER);
 
--- Para obter e salvar todas as cinases únicas (sem redundância) presentes na tabela kinase_ligand:
+-- To retrieve and save all unique kinases (non-redundant) present in the kinase_ligand table:
 COPY (SELECT DISTINCT kinase_name FROM public.kinase_ligand) TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/kinase_all_chembl_33.tsv' WITH CSV HEADER DELIMITER E'\t';
+
                                                                   
 ```
-## Para obter e salvar a quantidade de ligantes associados a cada cinase:
+## To retrieve and save the number of ligands associated with each kinase:
+
 ```bash
--- Inicia uma operação de cópia de dados para um arquivo
+-- Start a data copy operation to a file
 COPY (
-    -- Utiliza um CTE (Common Table Expression) para calcular o total de ligantes
+    -- Use a CTE (Common Table Expression) to calculate the total ligands
     WITH TotalLigands AS (
-        -- Seleciona a soma total de ligantes de todas as kinases
+        -- Select the total sum of ligands for all kinases
         SELECT SUM(number_of_ligands) AS total_ligands_of_kinases
         FROM public.kinase_ligand
     )
-    -- Seleciona os dados da tabela kinase_ligand
+    -- Select data from the kinase_ligand table
     SELECT 
         k.kinase_name, 
-        -- Calcula a soma de ligantes para cada kinase
+        -- Calculate the sum of ligands for each kinase
         SUM(k.number_of_ligands) AS ligands_per_kinase,
-        -- Verifica se é a primeira linha do resultado
+        -- Check if it's the first row of the result
         CASE
             WHEN ROW_NUMBER() OVER(ORDER BY SUM(k.number_of_ligands) DESC, k.kinase_name) = 1 THEN t.total_ligands_of_kinases
-            -- Se não for a primeira linha, coloca NULL
+            -- If it's not the first row, set to NULL
             ELSE NULL
         END AS total_ligands_of_kinases
     FROM 
-        -- Junta os dados da tabela kinase_ligand com o total de ligantes
+        -- Join the data from the kinase_ligand table with the total ligands
         public.kinase_ligand k
     CROSS JOIN TotalLigands t
-    -- Agrupa os resultados por nome da kinase e total de ligantes
+    -- Group the results by kinase name and total ligands
     GROUP BY 
         k.kinase_name, t.total_ligands_of_kinases 
-    -- Ordena os resultados pela soma de ligantes em ordem decrescente e, em seguida, pelo nome da kinase
+    -- Order the results by the sum of ligands in descending order and then by kinase name
     ORDER BY 
         ligands_per_kinase DESC, k.kinase_name
 )
--- Especifica o local e o formato do arquivo para onde os dados serão copiados
+-- Specify the location and format of the file to which the data will be copied
 TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/kinase_ligand_chembl_33.tsv' WITH CSV HEADER DELIMITER E'\t';
 
--- Para obter e salvar o top 10 de cinases com o maior número de ligantes: 
+-- To retrieve and save the top 10 kinases with the highest number of ligands:
 COPY (SELECT kinase_name, SUM(number_of_ligands) as total_ligands FROM public.kinase_ligand GROUP BY kinase_name ORDER BY total_ligands DESC LIMIT 10) TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/kinase_ligand_top10_chembl_33.tsv' WITH CSV HEADER DELIMITER E'\t';
 
 ```
 ## SQL Utils
 ```bash
--- remover base de dados chembl_23
+-- remove the chembl_23 database
 DROP DATABASE chembl_23;
 
--- Excluir tabela, por exemplo ‘kinase_all’
+-- Drop table, for example, ‘kinase_all’
 DROP TABLE public.kinase_all;
 
--- Examinando o esquema da tabela ‘kinase_ligand
+-- Inspecting the schema of the ‘kinase_ligand table
 \d public.kinase_ligand;
-
 ```
 
 
