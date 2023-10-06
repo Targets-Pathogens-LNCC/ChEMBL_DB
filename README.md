@@ -21,7 +21,7 @@ pg_restore -U sulfierry -d chembl_23 --no-owner -n public ./chembl_23_postgresql
 
 
 
--- Selecionar todos os compostos sem aplicar nenhum filtro e criar tabela persistente 'compounds_all'
+## Selecionar todos os compostos sem aplicar nenhum filtro e criar tabela persistente 'compounds_all'
 CREATE TABLE public.compounds_all AS
 SELECT molregno, canonical_smiles
 FROM public.compound_structures;
