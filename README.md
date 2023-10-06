@@ -102,7 +102,7 @@ COPY (
         k.kinase_name, 
         -- Calculate the sum of ligands for each kinase
         SUM(k.number_of_ligands) AS ligands_per_kinase,
-        -- Check if it's the first row of the result
+        -- Check if its the first row of the result
         CASE
             WHEN ROW_NUMBER() OVER(ORDER BY SUM(k.number_of_ligands) DESC, k.kinase_name) = 1 THEN t.total_ligands_of_kinases
             -- If it's not the first row, set to NULL
