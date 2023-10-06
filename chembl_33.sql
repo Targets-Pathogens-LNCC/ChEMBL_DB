@@ -48,3 +48,37 @@ COPY public.filtered_chembl_33_IC50 TO '/Users/sulfierry/Desktop/thil/chemblDB/c
 — Para obter e salvar todas as cinases únicas (sem redundância) presentes na tabela kinase_ligand:
 COPY (SELECT DISTINCT kinase_name FROM public.kinase_ligand) TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/kinase_all_chembl_33.tsv' WITH CSV HEADER DELIMITER E'\t';
 
+
+— Para obter e salvar a quantidade de ligantes associados a cada cinase: 
+-- Inicia uma operação de cópia de dados para um arquivo
+COPY (
+    -- Utiliza um CTE (Common Table Expression) para calcular o total de ligantes
+    WITH TotalLigands AS (
+        -- Seleciona a soma total de ligantes de todas as kinases
+        SELECT SUM(number_of_ligands) AS total_ligands_of_kinases
+        FROM public.kinase_ligand
+    )
+    -- Seleciona os dados da tabela kinase_ligand
+    SELECT 
+        k.kinase_name, 
+        -- Calcula a soma de ligantes para cada kinase
+        SUM(k.number_of_ligands) AS ligands_per_kinase,
+        -- Verifica se é a primeira linha do resultado
+        CASE
+            WHEN ROW_NUMBER() OVER(ORDER BY SUM(k.number_of_ligands) DESC, k.kinase_name) = 1 THEN t.total_ligands_of_kinases
+            -- Se não for a primeira linha, coloca NULL
+            ELSE NULL
+        END AS total_ligands_of_kinases
+    FROM 
+        -- Junta os dados da tabela kinase_ligand com o total de ligantes
+        public.kinase_ligand k
+    CROSS JOIN TotalLigands t
+    -- Agrupa os resultados por nome da kinase e total de ligantes
+    GROUP BY 
+        k.kinase_name, t.total_ligands_of_kinases 
+    -- Ordena os resultados pela soma de ligantes em ordem decrescente e, em seguida, pelo nome da kinase
+    ORDER BY 
+        ligands_per_kinase DESC, k.kinase_name
+)
+-- Especifica o local e o formato do arquivo para onde os dados serão copiados
+TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/kinase_ligand_chembl_33.tsv' WITH CSV HEADER DELIMITER E'\t';
