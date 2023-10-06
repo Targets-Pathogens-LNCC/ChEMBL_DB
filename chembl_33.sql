@@ -82,3 +82,8 @@ COPY (
 )
 -- Especifica o local e o formato do arquivo para onde os dados serão copiados
 TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/kinase_ligand_chembl_33.tsv' WITH CSV HEADER DELIMITER E'\t';
+
+— Para obter e salvar o top 10 de cinases com o maior número de ligantes: 
+COPY (SELECT kinase_name, SUM(number_of_ligands) as total_ligands FROM public.kinase_ligand GROUP BY kinase_name ORDER BY total_ligands DESC LIMIT 10) TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/kinase_ligand_top10_chembl_33.tsv' WITH CSV HEADER DELIMITER E'\t';
+
+
