@@ -6,3 +6,41 @@ FROM public.compound_structures;
 
 -- Salvar esta seleção em .tsv
 COPY (SELECT molregno, canonical_smiles FROM public.compound_structures) TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/chembl_33_molecules.tsv' WITH (FORMAT 'csv', DELIMITER E'\t', HEADER);
+
+
+-- para visualizar a tabela recém criada
+SELECT * FROM public.compounds_all;
+
+-- Criar uma tabela persistente filtered_chembl_33
+CREATE TABLE public.filtered_chembl_33_IC50 AS (
+    SELECT DISTINCT cs.molregno, cs.canonical_smiles
+    FROM public.compound_records AS cr
+    JOIN public.compound_structures AS cs ON cr.molregno = cs.molregno
+    JOIN public.activities AS act ON cr.molregno = act.molregno
+    WHERE (act.standard_type = 'IC50' OR act.standard_type = 'Ki' OR act.standard_type = 'Kd') 
+    AND act.standard_value > 6
+    AND cs.canonical_smiles IS NOT NULL AND cs.canonical_smiles != ''
+);
+
+
+-- Cria a tabela 'kinase_ligand' no schema 'public' de 'chembl_33'
+CREATE TABLE public.kinase_ligand AS
+SELECT 
+    t.pref_name AS kinase_name,            			          -- Seleciona o nome preferencial do alvo (target) e o nomeia como 'kinase_name'
+    COUNT(DISTINCT act.molregno) AS number_of_ligands  -- Conta os ligantes distintos associados ao alvo e nomeia a contagem como 'number_of_ligands'
+FROM 
+    activities act                       				           -- Tabela de atividades, que inclui informações sobre os ligantes e suas atividades
+JOIN 
+    assays ass ON act.assay_id = ass.assay_id                        -- Junta com a tabela 'assays' para obter informações sobre o ensaio em que o ligante foi testado
+JOIN 
+    target_dictionary t ON ass.tid = t.tid                                      -- Junta com a tabela 'target_dictionary' para obter informações sobre o alvo (target)
+WHERE 
+    t.target_type = 'SINGLE PROTEIN' AND                              -- Filtra para considerar apenas alvos que são proteínas individuais
+    t.pref_name LIKE '%kinase%'                                               -- Filtra para considerar apenas alvos com nomes que contêm a palavra 'kinase'
+GROUP BY 
+    t.pref_name;                                                                          -- Agrupa por nome preferencial do alvo para obter uma contagem única de ligantes por alvo
+
+
+-- Exportar os dados para um arquivo .tsv
+COPY public.filtered_chembl_33_IC50 TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/filtered_chembl_33_IC50.tsv' WITH (FORMAT 'csv', DELIMITER E'\t', HEADER);
+
