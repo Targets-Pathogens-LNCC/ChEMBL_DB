@@ -1,7 +1,7 @@
 # ChEMBL_DB_exploring
 
-Explore the ChEMBL database using SQL.
-[Chembl_33](https://ftp.ebi.ac.uk/pub/databases/chembl/ChEMBLdb/latest/)
+Explore the ChEMBL ([Chembl_33](https://ftp.ebi.ac.uk/pub/databases/chembl/ChEMBLdb/latest/)) database using SQL.
+
 
 
 ## Installation, Configuration, and SQL Commands
