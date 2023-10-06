@@ -20,6 +20,7 @@ pg_restore -U sulfierry -d chembl_23 --no-owner -n public ./chembl_23_postgresql
 \dt public.*
 
 
+
 -- Selecionar todos os compostos sem aplicar nenhum filtro e criar tabela persistente 'compounds_all'
 CREATE TABLE public.compounds_all AS
 SELECT molregno, canonical_smiles
@@ -104,3 +105,14 @@ TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/kinase_ligand_chembl_33.tsv
 
 — Para obter e salvar o top 10 de cinases com o maior número de ligantes: 
 COPY (SELECT kinase_name, SUM(number_of_ligands) as total_ligands FROM public.kinase_ligand GROUP BY kinase_name ORDER BY total_ligands DESC LIMIT 10) TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/kinase_ligand_top10_chembl_33.tsv' WITH CSV HEADER DELIMITER E'\t';
+
+
+# remover base de dados chembl_23
+DROP DATABASE chembl_23;
+
+# Excluir tabela, por exemplo ‘kinase_all’
+DROP TABLE public.kinase_all;
+
+# Examinando o esquema da tabela ‘kinase_ligand
+\d public.kinase_ligand;
+
