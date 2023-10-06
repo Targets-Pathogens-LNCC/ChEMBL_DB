@@ -1,6 +1,6 @@
 # ChEMBL_DB_exploring
 
-Explore o banco de dados ChEMBL com comandos SQL úteis.
+Explore o banco de dados ChEMBL com SQL.
 
 ## Instalação, Configuração e Comandos SQL
 
