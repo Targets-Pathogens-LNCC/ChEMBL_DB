@@ -14,13 +14,13 @@ brew install postgresql
 # Start PostgreSQL
 brew services start postgresql
 
-# Start PostgreSQL and create the `chembl_23` database
-psql -U your_user
-create database chembl_23;
+# Start PostgreSQL and create the `chembl_33` database
+psql -U your_user (e.g., sulfierry)
+create database chembl_33;
 \q
 
 # Restore Database
-pg_restore -U sulfierry -d chembl_23 --no-owner -n public ./chembl_23_postgresql.dmp
+pg_restore -U sulfierry -d chembl_33 --no-owner -n public ./chembl_33_postgresql.dmp
 ```
 
 ## Select all compounds without any filter and create persistent table 'compounds_all'
@@ -30,13 +30,15 @@ CREATE TABLE public.compounds_all AS
 SELECT molregno, canonical_smiles
 FROM public.compound_structures;
 
--- Save this selection in .tsv
-COPY (SELECT molregno, canonical_smiles FROM public.compound_structures) TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/chembl_33_molecules.tsv' WITH (FORMAT 'csv', DELIMITER E'\t', HEADER);
-
 -- to view the newly created table
 SELECT * FROM public.compounds_all;
 
--- Create a persistent table filtered_chembl_33
+-- Save this selection in .tsv
+COPY (SELECT molregno, canonical_smiles FROM public.compound_structures) TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/chembl_33_molecules.tsv' WITH (FORMAT 'csv', DELIMITER E'\t', HEADER);
+```
+## Create a persistent table 'filtered_chembl_33'
+
+```bash
 CREATE TABLE public.filtered_chembl_33_IC50 AS (
     SELECT DISTINCT cs.molregno, cs.canonical_smiles
     FROM public.compound_records AS cr
@@ -105,7 +107,7 @@ COPY (
         -- Check if its the first row of the result
         CASE
             WHEN ROW_NUMBER() OVER(ORDER BY SUM(k.number_of_ligands) DESC, k.kinase_name) = 1 THEN t.total_ligands_of_kinases
-            -- If it's not the first row, set to NULL
+            -- If its not the first row, set to NULL
             ELSE NULL
         END AS total_ligands_of_kinases
     FROM 
@@ -128,8 +130,8 @@ COPY (SELECT kinase_name, SUM(number_of_ligands) as total_ligands FROM public.ki
 ```
 ## SQL Utils
 ```bash
--- remove the chembl_23 database
-DROP DATABASE chembl_23;
+-- remove the chembl_33 database
+DROP DATABASE chembl_33;
 
 -- Drop table, for example, ‘kinase_all’
 DROP TABLE public.kinase_all;
@@ -137,5 +139,3 @@ DROP TABLE public.kinase_all;
 -- Inspecting the schema of the ‘kinase_ligand table
 \d public.kinase_ligand;
 ```
-
-
