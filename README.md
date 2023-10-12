@@ -2,6 +2,9 @@
 
 Explore the ChEMBL ([Chembl_33](https://ftp.ebi.ac.uk/pub/databases/chembl/ChEMBLdb/latest/)) database using SQL.
 
+![Alt text da image](https://github.com/gmmsb-lncc/ChEMBL_DB/blob/main/chembl_33_BDscheme.png)
+
+
 The following example is applied to the identification of ligands related to protein kinases.
 
 
