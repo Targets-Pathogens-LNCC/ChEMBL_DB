@@ -1,9 +1,9 @@
-# usage python script.py input_smiles.tsv output_filter_PKI.tsv
 import csv
 import sys
 from rdkit import Chem
 from rdkit.Chem import Crippen, Descriptors, Lipinski, rdMolDescriptors
 from tqdm import tqdm
+from concurrent.futures import ProcessPoolExecutor
 
 def find_smiles_column(reader):
     for row in reader:
@@ -11,6 +11,13 @@ def find_smiles_column(reader):
             if Chem.MolFromSmiles(field) is not None:
                 return idx
     return None
+
+def worker(row):
+    if len(row) > smiles_column:
+        data = (None, row[smiles_column])
+        return process_molecule(data)
+    return (False, None, None, None, None, None, None, None, None, None)
+
 
 def process_molecule(data):
     _, smiles = data  # Ignorando molregno
@@ -41,7 +48,7 @@ def process_molecule(data):
 if __name__ == "__main__":
     input_file = sys.argv[1]
     output_file = sys.argv[2]
-    with open(input_file, 'r') as infile, open(output_file, 'w') as outfile:
+    with open(input_file, 'r') as infile, open(output_file, 'w', newline='') as outfile:
         reader = csv.reader(infile, delimiter='\t')
         writer = csv.writer(outfile, delimiter='\t')
 
@@ -53,9 +60,10 @@ if __name__ == "__main__":
         infile.seek(0)  # Voltar ao início do arquivo
         writer.writerow(["canonical_smiles", "MW", "CLogP", "HBD", "HBA", "TPSA", "NRB", "NAR", "NCA"])
 
-        for row in tqdm(reader):
-            if len(row) > smiles_column:
-                data = (None, row[smiles_column])
-                is_valid, smiles, MW, CLogP, HBD, HBA, TPSA, NRB, NAR, NCA = process_molecule(data)
+        rows = list(reader)
+        with ProcessPoolExecutor() as executor:
+            results = list(tqdm(executor.map(worker, rows), total=len(rows)))
+            
+            for is_valid, smiles, MW, CLogP, HBD, HBA, TPSA, NRB, NAR, NCA in results:
                 if is_valid:
                     writer.writerow([smiles, MW, CLogP, HBD, HBA, TPSA, NRB, NAR, NCA])
