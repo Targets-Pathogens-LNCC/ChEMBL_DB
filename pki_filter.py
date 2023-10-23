@@ -111,7 +111,7 @@ class VisualizarDescritores:
         plt.tight_layout(h_pad=3, w_pad=2, rect=[0.05, 0, 1, 1])
 
         # Adicionar a legenda do eixo Y no meio do gráfico
-        fig.text(0.04, 0.5, 'Frequency', va='center', rotation='vertical', fontsize=12)
+        fig.text(0.04, 0.5, 'Frequency', va='center', rotation='vertical', fontsize=18)
 
         # Plotar os histogramas para cada descritor
         for i, descritor in enumerate(descritores):
@@ -199,12 +199,11 @@ class VisualizarQuantificacoes:
             col = i % 2
             axs[row, col].bar(values.index, values, color='skyblue')
             axs[row, col].set_title(f'{descritor}')
-            axs[row, col].set_ylabel('Value')
             axs[row, col].tick_params(axis='x', rotation=45)
+            # axs[row, col].set_ylabel('Valor' if col == 0 else '')
 
-        # Ajustar a posição do eixo y para evitar que seja cortado
-        for ax in axs.flat:
-            ax.yaxis.labelpad = 15
+        # Adicionar um rótulo comum para o eixo Y
+        fig.text(0.09, 0.5, 'Value', va='center', ha='center', rotation='vertical', fontsize=18)
 
         # Definir o caminho do arquivo de saída
         output_path = os.path.join(self.output_directory, "quantificacoes_histograma.png")
