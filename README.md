@@ -141,4 +141,10 @@ DROP TABLE public.kinase_all;
 
 -- Inspecting the schema of the ‘kinase_ligand table
 \d public.kinase_ligand;
+
+-- Para obter informações sobre as colunas e os tipos de dados da tabela
+SELECT column_name, data_type, character_maximum_length
+FROM information_schema.columns
+WHERE table_name = 'nome_da_tabela';
+
 ```
