@@ -133,7 +133,7 @@ COPY (SELECT kinase_name, SUM(number_of_ligands) as total_ligands FROM public.ki
 ```
 ## SQL Utils
 ```bash
--- remove the chembl_33 database
+-- Remove the chembl_33 database
 DROP DATABASE chembl_33;
 
 -- Drop table, for example, ‘kinase_all’
@@ -142,15 +142,35 @@ DROP TABLE public.kinase_all;
 -- Inspecting the schema of the ‘kinase_ligand table
 \d public.kinase_ligand;
 
--- Para obter informações sobre as colunas e os tipos de dados da tabela
+-- To find out the name of the schema where your tables are stored, you can run the following SQL query
+-- In the case of ChEMBL, all tables are in the 'public' schema
+SELECT DISTINCT table_schema 
+FROM information_schema.tables 
+WHERE table_schema NOT IN ('pg_catalog', 'information_schema');
+
+-- For information about the table's columns and data types
 SELECT column_name, data_type, character_maximum_length
 FROM information_schema.columns
-WHERE table_name = 'nome_da_tabela';
+WHERE table_schema = 'public' AND table_name = 'table_name';
 
--- Para listar todos os índices associados a uma tabela
+-- To list all indexes associated with a table
 SELECT indexname, indexdef
 FROM pg_indexes
-WHERE tablename = 'nome_da_tabela';
+WHERE schemaname = 'public' AND tablename = 'table_name';
 
 
+-- To list all foreign keys associated with a table
+-- Replace 'table_name' with the name of your table of interest
+SELECT conname AS constraint_name, conrelid::regclass AS table_name, a.attname AS column_name, confrelid::regclass AS foreign_table_name, af.attname AS foreign_column_name
+FROM   pg_attribute a
+JOIN   pg_constraint c ON a.attnum = ANY(c.conkey)
+LEFT   JOIN pg_attribute af ON af.attnum = ANY(c.confkey) AND af.attrelid = c.confrelid
+WHERE  a.attrelid = 'public.table_name'::regclass
+AND    c.confrelid IS NOT NULL;
+
+
+-- To list all triggers associated with a table
+SELECT trigger_name, action_timing, event_manipulation, action_statement
+FROM information_schema.triggers
+WHERE event_object_schema = 'public' AND event_object_table = 'table_name';
 ```
