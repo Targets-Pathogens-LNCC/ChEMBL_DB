@@ -8,6 +8,7 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 
 class Descritores:
     def __init__(self, input_file, output_file):
@@ -142,6 +143,37 @@ class VisualizarDescritores:
         # Mostrar o caminho do arquivo salvo
         print("Histograma salvo em:", output_path)
 
+class QuantificarDescritores:
+    def __init__(self, pkidb_file, output_file):
+        self.pkidb_file = pkidb_file
+        self.output_file = output_file
+
+    def run(self):
+        # Carregar o conjunto de dados
+        pkidb_data = pd.read_csv(self.pkidb_file, sep='\t')
+
+        # Lista de descritores para análise
+        descritores = ['MW', 'LogP', 'HBD', 'HBA', 'TPSA', 'NRB']
+
+        # Inicializar um dicionário para armazenar os resultados
+        quantificacoes = {}
+
+        # Calcular os valores de fronteira para cada descritor
+        for descritor in descritores:
+            minimo = np.min(pkidb_data[descritor])
+            percentil_25 = np.percentile(pkidb_data[descritor], 25)
+            mediana = np.median(pkidb_data[descritor])
+            media = np.mean(pkidb_data[descritor])
+            percentil_75 = np.percentile(pkidb_data[descritor], 75)
+            maximo = np.max(pkidb_data[descritor])
+            
+            quantificacoes[descritor] = [minimo, percentil_25, mediana, media, percentil_75, maximo]
+
+        # Salvar os resultados em um arquivo .tsv
+        quantificacoes_df = pd.DataFrame.from_dict(quantificacoes, orient='index', columns=['Min', '25th Percentile', 'Median', 'Mean', '75th Percentile', 'Max'])
+        quantificacoes_df.to_csv(self.output_file, sep='\t')
+
+        print(f'Os valores de fronteira foram salvos em: {self.output_file}')
 
 if __name__ == "__main__":
     descritores = Descritores('../PKIDB/pkidb_2023-06-30.tsv', 'out_pkidb222.tsv')
@@ -149,3 +181,6 @@ if __name__ == "__main__":
     
     visualizar_descritores = VisualizarDescritores('../PKIDB/pkidb_2023-06-30.tsv', 'out_pkidb.tsv', 'output_directory')
     visualizar_descritores.run()
+
+    quantificar_descritores = QuantificarDescritores('../PKIDB/pkidb_2023-06-30.tsv', 'output_quantificacoes.tsv')
+    quantificar_descritores.run()
