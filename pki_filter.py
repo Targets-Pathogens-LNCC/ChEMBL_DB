@@ -74,3 +74,59 @@ if __name__ == "__main__":
             for is_valid, smiles, MW, CLogP, HBD, HBA, TPSA, NRB, NAR, NCA in results:
                 if is_valid:
                     writer.writerow([smiles, MW, CLogP, HBD, HBA, TPSA, NRB, NAR, NCA])
+
+### PLOT
+import os
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Carregar os conjuntos de dados
+pkidb_data = pd.read_csv('../PKIDB/pkidb_2023-06-30.tsv', sep='\t')
+out_pkidb_data = pd.read_csv('out_pkidb.tsv', sep='\t')
+
+# Renomear as colunas do conjunto de dados out_pkidb para corresponder às colunas do conjunto de dados pkidb
+out_pkidb_data = out_pkidb_data.rename(columns={"CLogP": "LogP"})
+
+# Configurar o estilo dos gráficos
+sns.set(style="whitegrid")
+
+# Lista de descritores para análise
+descritores = ['MW', 'LogP', 'HBD', 'HBA', 'TPSA', 'NRB']
+
+# Criar uma figura e um conjunto de subplots
+fig, axs = plt.subplots(nrows=3, ncols=2, figsize=(15, 12))
+
+# Ajustar o espaço entre os plots
+plt.tight_layout(h_pad=3)
+
+# Plotar os histogramas para cada descritor
+for i, descritor in enumerate(descritores):
+    # Calcular a posição do subplot
+    row = i // 2
+    col = i % 2
+    
+    # Plotar o histograma para o conjunto de dados 'pkidb'
+    sns.histplot(pkidb_data[descritor], bins=30, ax=axs[row, col], kde=False, color="blue", label="pkidb")
+    
+    # Plotar o histograma para o conjunto de dados 'out_pkidb'
+    sns.histplot(out_pkidb_data[descritor], bins=30, ax=axs[row, col], kde=False, color="orange", label="out_pkidb")
+    
+    # Configurar o título e os rótulos
+    axs[row, col].set_title(f'Distribuição de {descritor}')
+    axs[row, col].set_xlabel(descritor)
+    axs[row, col].set_ylabel('Frequência')
+
+    # Adicionar a legenda
+    axs[row, col].legend()
+
+# Definir o caminho do arquivo de saída
+output_directory = "histogramas"
+os.makedirs(output_directory, exist_ok=True)
+output_path = os.path.join(output_directory, "descritores_histogramas.png")
+
+# Salvar a figura completa
+plt.savefig(output_path)
+
+# Mostrar o caminho do arquivo salvo
+print("Histograma salvo em:", output_path)
