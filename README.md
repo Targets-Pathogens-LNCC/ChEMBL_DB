@@ -147,4 +147,10 @@ SELECT column_name, data_type, character_maximum_length
 FROM information_schema.columns
 WHERE table_name = 'nome_da_tabela';
 
+-- Para listar todos os índices associados a uma tabela
+SELECT indexname, indexdef
+FROM pg_indexes
+WHERE tablename = 'nome_da_tabela';
+
+
 ```
