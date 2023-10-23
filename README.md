@@ -148,7 +148,7 @@ SELECT DISTINCT table_schema
 FROM information_schema.tables 
 WHERE table_schema NOT IN ('pg_catalog', 'information_schema');
 
--- For information about the table's columns and data types
+-- For information about the tables columns and data types
 SELECT column_name, data_type, character_maximum_length
 FROM information_schema.columns
 WHERE table_schema = 'public' AND table_name = 'table_name';
