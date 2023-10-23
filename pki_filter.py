@@ -12,11 +12,13 @@ def find_smiles_column(reader):
                 return idx
     return None
 
-def worker(row):
+def worker(args):
+    row, smiles_column = args
     if len(row) > smiles_column:
         data = (None, row[smiles_column])
         return process_molecule(data)
     return (False, None, None, None, None, None, None, None, None, None)
+
 
 
 def process_molecule(data):
@@ -62,7 +64,12 @@ if __name__ == "__main__":
 
         rows = list(reader)
         with ProcessPoolExecutor() as executor:
-            results = list(tqdm(executor.map(worker, rows), total=len(rows)))
+            # Cria um iterável de argumentos para passar para a função worker.
+            # Cada item no iterável é uma tupla (row, smiles_column).
+            args_iter = ((row, smiles_column) for row in rows)
+            
+            results = list(tqdm(executor.map(worker, args_iter), total=len(rows)))
+
             
             for is_valid, smiles, MW, CLogP, HBD, HBA, TPSA, NRB, NAR, NCA in results:
                 if is_valid:
