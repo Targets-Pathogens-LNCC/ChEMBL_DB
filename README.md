@@ -149,6 +149,7 @@ FROM information_schema.tables
 WHERE table_schema NOT IN ('pg_catalog', 'information_schema');
 
 -- For information about the tables columns and data types
+-- Replace 'table_name' with the name of your table of interest
 SELECT column_name, data_type, character_maximum_length
 FROM information_schema.columns
 WHERE table_schema = 'public' AND table_name = 'table_name';
@@ -160,7 +161,6 @@ WHERE schemaname = 'public' AND tablename = 'table_name';
 
 
 -- To list all foreign keys associated with a table
--- Replace 'table_name' with the name of your table of interest
 SELECT conname AS constraint_name, conrelid::regclass AS table_name, a.attname AS column_name, confrelid::regclass AS foreign_table_name, af.attname AS foreign_column_name
 FROM   pg_attribute a
 JOIN   pg_constraint c ON a.attnum = ANY(c.conkey)
