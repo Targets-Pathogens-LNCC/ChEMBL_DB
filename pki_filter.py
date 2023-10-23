@@ -1,14 +1,15 @@
+import os
 import csv
 import sys
-from rdkit import Chem
-from rdkit.Chem import Crippen, Descriptors, Lipinski, rdMolDescriptors
-from tqdm import tqdm
-from concurrent.futures import ProcessPoolExecutor
-import os
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 import numpy as np
+import pandas as pd
+import seaborn as sns
+from tqdm import tqdm
+from rdkit import Chem
+import matplotlib.pyplot as plt
+from concurrent.futures import ProcessPoolExecutor
+from rdkit.Chem import Crippen, Descriptors, Lipinski, rdMolDescriptors
+
 
 class Descritores:
     def __init__(self, input_file, output_file):
@@ -125,7 +126,7 @@ class VisualizarDescritores:
             sns.histplot(out_pkidb_data[descritor], bins=30, ax=axs[row, col], kde=False, color="orange", label="out_pkidb" if i==0 else "")
             
             # Configurar o título e os rótulos
-            axs[row, col].set_title(f'Distribution of {descritor}')
+            # axs[row, col].set_title(f'Distribution of {descritor}')
             axs[row, col].set_xlabel(descritor)
             axs[row, col].set(ylabel=None)
 
@@ -175,6 +176,41 @@ class QuantificarDescritores:
 
         print(f'Os valores de fronteira foram salvos em: {self.output_file}')
 
+
+class VisualizarQuantificacoes:
+    def __init__(self, quantificacoes_file, output_directory):
+        self.quantificacoes_file = quantificacoes_file
+        self.output_directory = output_directory
+
+    def run(self):
+        # Carregar o arquivo de quantificações
+        quantificacoes_data = pd.read_csv(self.quantificacoes_file, sep='\t', index_col=0)
+
+        # Configurar o estilo dos gráficos
+        sns.set(style="whitegrid")
+
+        # Criar uma figura e um conjunto de subplots
+        fig, axs = plt.subplots(nrows=3, ncols=2, figsize=(15, 15))
+        plt.subplots_adjust(hspace=0.4, wspace=0.3)
+
+        # Plotar os gráficos para cada descritor
+        for i, (descritor, values) in enumerate(quantificacoes_data.iterrows()):
+            row = i // 2
+            col = i % 2
+            axs[row, col].bar(values.index, values, color='skyblue')
+            axs[row, col].set_title(f'{descritor}')
+            axs[row, col].set_ylabel('Value')
+            axs[row, col].tick_params(axis='x', rotation=45)
+
+        # Ajustar a posição do eixo y para evitar que seja cortado
+        for ax in axs.flat:
+            ax.yaxis.labelpad = 15
+
+        # Definir o caminho do arquivo de saída
+        output_path = os.path.join(self.output_directory, "quantificacoes_histograma.png")
+        plt.savefig(output_path, bbox_inches='tight')
+        print("Histograma salvo em:", output_path)
+
 if __name__ == "__main__":
     descritores = Descritores('../PKIDB/pkidb_2023-06-30.tsv', 'out_pkidb222.tsv')
     descritores.run()
@@ -184,3 +220,6 @@ if __name__ == "__main__":
 
     quantificar_descritores = QuantificarDescritores('../PKIDB/pkidb_2023-06-30.tsv', 'output_quantificacoes.tsv')
     quantificar_descritores.run()
+
+    visualizar_quantificacoes = VisualizarQuantificacoes('output_quantificacoes.tsv', 'output_directory')
+    visualizar_quantificacoes.run()
