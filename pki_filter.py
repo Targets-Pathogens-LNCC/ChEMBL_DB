@@ -1,3 +1,4 @@
+# usage python script.py input_smiles.tsv output_filter_PKI.tsv
 import csv
 import sys
 from rdkit import Chem
