@@ -24,6 +24,9 @@ create database chembl_33;
 
 # Restore Database
 pg_restore -U sulfierry -d chembl_33 --no-owner -n public ./chembl_33_postgresql.dmp
+
+# Acess Database already created
+psql -U sulfierry -d chembl_33
 ```
 
 ## Select all compounds without any filter and create persistent table 'compounds_all'
