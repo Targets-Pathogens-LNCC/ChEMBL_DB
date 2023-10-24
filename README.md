@@ -31,7 +31,7 @@ psql -U sulfierry -d chembl_33
 
 ## Select all compounds without any filter and create persistent table 'compounds_all'
 
-```bash
+```sql
 CREATE TABLE public.compounds_all AS
 SELECT molregno, canonical_smiles
 FROM public.compound_structures;
@@ -44,7 +44,7 @@ COPY (SELECT molregno, canonical_smiles FROM public.compound_structures) TO '/Us
 ```
 ## Create a persistent table 'filtered_chembl_33'
 
-```bash
+```sql
 CREATE TABLE public.filtered_chembl_33_IC50 AS (
     SELECT DISTINCT cs.molregno, cs.canonical_smiles
     FROM public.compound_records AS cr
@@ -61,7 +61,7 @@ COPY public.filtered_chembl_33_IC50 TO '/Users/sulfierry/Desktop/thil/chemblDB/c
 ```
 ## Create the 'kinase_ligand' table in the 'public' schema of 'chembl_33'
 
-```bash
+```sql
 CREATE TABLE public.kinase_ligand AS
 SELECT
 -- Select the targets preferred name and label it as 'kinase_name'
@@ -96,7 +96,7 @@ COPY (SELECT DISTINCT kinase_name FROM public.kinase_ligand) TO '/Users/sulfierr
 ```
 ## To retrieve and save the number of ligands associated with each kinase:
 
-```bash
+```sql
 -- Start a data copy operation to a file
 COPY (
     -- Use a CTE (Common Table Expression) to calculate the total ligands
