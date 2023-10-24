@@ -135,21 +135,23 @@ COPY (SELECT kinase_name, SUM(number_of_ligands) as total_ligands FROM public.ki
 
 ```
 ## SQL Utils
-```bash
+```sql
 -- Remove the chembl_33 database
 DROP DATABASE chembl_33;
 
 -- Drop table, for example, ‘kinase_all’
 DROP TABLE public.kinase_all;
 
--- Inspecting the schema of the ‘kinase_ligand table
-\d public.kinase_ligand;
-
 -- To find out the name of the schema where your tables are stored, you can run the following SQL query
 -- In the case of ChEMBL, all tables are in the 'public' schema
 SELECT DISTINCT table_schema 
 FROM information_schema.tables 
 WHERE table_schema NOT IN ('pg_catalog', 'information_schema');
+
+-- List all tables names already created
+SELECT table_name
+FROM information_schema.tables
+WHERE table_schema = 'public';
 
 -- For information about the tables columns and data types
 -- Replace 'table_name' with the name of your table of interest
@@ -176,4 +178,21 @@ AND    c.confrelid IS NOT NULL;
 SELECT trigger_name, action_timing, event_manipulation, action_statement
 FROM information_schema.triggers
 WHERE event_object_schema = 'public' AND event_object_table = 'table_name';
+
+-- Retorna uma lista de moléculas da tabela filtered_chembl_33 juntamente com suas atividades biológicas associadas. 
+SELECT
+    f.molregno,
+    f.canonical_smiles,
+    ARRAY_AGG(a.standard_type || ': ' || a.standard_value || ' ' || a.standard_units) AS biological_activities
+FROM
+    public.filtered_chembl_33_IC50 f
+LEFT JOIN
+    public.activities a ON f.molregno = a.molregno
+WHERE
+    a.standard_value IS NOT NULL AND
+    a.standard_units IS NOT NULL
+GROUP BY
+    f.molregno, f.canonical_smiles;
+
+COPY public.compound_activities TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/DATASETS/compound_activities_filtered.tsv' WITH CSV HEADER DELIMITER E'\t';
 ```
