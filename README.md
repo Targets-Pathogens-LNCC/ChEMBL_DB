@@ -179,20 +179,26 @@ SELECT trigger_name, action_timing, event_manipulation, action_statement
 FROM information_schema.triggers
 WHERE event_object_schema = 'public' AND event_object_table = 'table_name';
 
--- Retorna uma lista de moléculas da tabela filtered_chembl_33 juntamente com suas atividades biológicas associadas. 
-SELECT
-    f.molregno,
-    f.canonical_smiles,
-    ARRAY_AGG(a.standard_type || ': ' || a.standard_value || ' ' || a.standard_units) AS biological_activities
-FROM
-    public.filtered_chembl_33_IC50 f
-LEFT JOIN
-    public.activities a ON f.molregno = a.molregno
-WHERE
-    a.standard_value IS NOT NULL AND
-    a.standard_units IS NOT NULL
-GROUP BY
-    f.molregno, f.canonical_smiles;
-
-COPY public.compound_activities TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/DATASETS/compound_activities_filtered.tsv' WITH CSV HEADER DELIMITER E'\t';
+-- Este comando SQL junta as informações da tabela filtered_chembl_33_IC50 com as atividades biológicas agregadas da tabela activities.
+-- A saída será um conjunto de linhas com três colunas: molregno, canonical_smiles e bio_activities, onde bio_activities é uma string que
+-- contém todas as atividades biológicas associadas a cada molécula, separadas por ponto e vírgula.
+COPY (
+    SELECT
+        mol.molregno,
+        mol.canonical_smiles,
+        act.bio_activities
+    FROM
+        (SELECT molregno, canonical_smiles FROM public.filtered_chembl_33_IC50) mol
+    JOIN
+        (SELECT
+             a.molregno,
+             STRING_AGG(DISTINCT a.standard_type || ': ' || a.standard_value || ' ' || COALESCE(a.standard_units, ''), '; ') AS bio_activities
+         FROM
+             public.activities a
+         GROUP BY
+             a.molregno
+        ) act
+    ON
+        mol.molregno = act.molregno
+) TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/DATASETS/molecules_with_bio_activities.tsv' WITH DELIMITER E'\t' CSV HEADER;
 ```
