@@ -201,4 +201,31 @@ COPY (
     ON
         mol.molregno = act.molregno
 ) TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/DATASETS/molecules_with_bio_activities.tsv' WITH DELIMITER E'\t' CSV HEADER;
+
+--
+CREATE TABLE kinase_ligands AS
+SELECT 
+    cs.molregno,
+    t.pref_name AS kinase_target,
+    cs.canonical_smiles,
+    act.standard_value AS value,
+    act.standard_type AS type
+FROM 
+    target_dictionary t
+JOIN
+    assays a ON t.tid = a.tid
+JOIN
+    activities act ON a.assay_id = act.assay_id
+JOIN
+    compound_structures cs ON act.molregno = cs.molregno
+WHERE 
+    t.pref_name LIKE '%kinase%' AND
+    (act.standard_type = 'KD' OR act.standard_type = 'Ki') AND
+    cs.canonical_smiles IS NOT NULL;
+
+COPY (
+ SELECT molregno, kinase_target, canonical_smiles, value AS kd, standard_units AS ki
+ FROM kinase_ligands
+) TO '/caminho/para/o/arquivo.csv' WITH (FORMAT csv, HEADER);
+
 ```
