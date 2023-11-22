@@ -203,29 +203,32 @@ COPY (
 ) TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/DATASETS/molecules_with_bio_activities.tsv' WITH DELIMITER E'\t' CSV HEADER;
 
 --
-CREATE TABLE kinase_ligands AS
+CREATE TABLE public.kinase_drug_info AS
 SELECT 
-    cs.molregno,
-    t.pref_name AS kinase_target,
-    cs.canonical_smiles,
-    act.standard_value AS value,
-    act.standard_type AS type
+    cs.molregno AS registro,
+    t.pref_name AS kinase_alvo,
+    cs.canonical_smiles AS smiles,
+    act.standard_value AS kd,
+    act.standard_type AS ki,
+    act.pchembl_value AS pchembl_value,
+    d.pref_name AS nome_medicamento
 FROM 
-    target_dictionary t
+    compound_structures cs
 JOIN
-    assays a ON t.tid = a.tid
+    activities act ON cs.molregno = act.molregno
 JOIN
-    activities act ON a.assay_id = act.assay_id
+    assays a ON act.assay_id = a.assay_id
 JOIN
-    compound_structures cs ON act.molregno = cs.molregno
+    target_dictionary t ON a.tid = t.tid
+LEFT JOIN
+    molecule_dictionary d ON cs.molregno = d.molregno
 WHERE 
     t.pref_name LIKE '%kinase%' AND
     (act.standard_type = 'KD' OR act.standard_type = 'Ki') AND
-    cs.canonical_smiles IS NOT NULL;
+    cs.canonical_smiles IS NOT NULL
+    AND act.pchembl_value IS NOT NULL;
 
-COPY (
- SELECT molregno, kinase_target, canonical_smiles, value AS kd, standard_units AS ki
- FROM kinase_ligands
-) TO '/caminho/para/o/arquivo.csv' WITH (FORMAT csv, HEADER);
+-- Verifique a tabela criada
+SELECT * FROM public.kinase_drug_info;
 
 ```
