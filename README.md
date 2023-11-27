@@ -18,7 +18,7 @@ brew install postgresql
 brew services start postgresql
 
 # Start PostgreSQL and create the `chembl_33` database
-psql -U your_user (e.g., sulfierry)
+psql -U your_user -d postgres (e.g., sulfierry)
 create database chembl_33;
 \q
 
