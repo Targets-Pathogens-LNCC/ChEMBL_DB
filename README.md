@@ -231,4 +231,6 @@ WHERE
 -- Verifique a tabela criada
 SELECT * FROM public.kinase_drug_info;
 
+\COPY public.kinase_drug_info TO '/caminho/para/o/arquivo/kinase_drug_info
+
 ```
