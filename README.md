@@ -231,6 +231,6 @@ WHERE
 -- Verifique a tabela criada
 SELECT * FROM public.kinase_drug_info;
 
-\COPY public.kinase_drug_info TO '/caminho/para/o/arquivo/kinase_drug_info
+\COPY public.kinase_drug_info TO '/home/leon/Desktop/chembl_33/install_chembl_DB/kinase_drug_info.tsv' WITH (FORMAT csv, HEADER, DELIMITER E'\t');
 
 ```
