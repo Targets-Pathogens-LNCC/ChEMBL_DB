@@ -233,4 +233,33 @@ SELECT * FROM public.kinase_drug_info;
 
 \COPY public.kinase_drug_info TO '/home/leon/Desktop/chembl_33/install_chembl_DB/kinase_drug_info.tsv' WITH (FORMAT csv, HEADER, DELIMITER E'\t');
 
+CREATE TABLE public.smile_kinase_kd_ki AS
+SELECT DISTINCT
+    cs.molregno,
+    t.pref_name AS kinase_alvo,
+    cs.canonical_smiles,
+    act.standard_value,
+    act.standard_type,
+    act.pchembl_value,
+    d.pref_name AS nome_medicamento
+FROM 
+    compound_structures cs
+JOIN
+    activities act ON cs.molregno = act.molregno
+JOIN
+    assays a ON act.assay_id = a.assay_id
+JOIN
+    target_dictionary t ON a.tid = t.tid
+LEFT JOIN
+    molecule_dictionary d ON cs.molregno = d.molregno
+WHERE 
+    t.pref_name LIKE '%kinase%' AND
+    cs.canonical_smiles IS NOT NULL AND
+    act.standard_value IS NOT NULL AND
+    act.standard_type IN ('KD', 'Ki');
+
+-- Verificar a tabela criada
+SELECT COUNT(*) FROM public.smile_kinase_kd_ki;
+SELECT * FROM public.smile_kinase_kd_ki LIMIT 10;
+
 ```
