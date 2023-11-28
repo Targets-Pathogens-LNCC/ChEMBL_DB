@@ -287,10 +287,10 @@ WHERE
     act.standard_value IS NOT NULL AND
     act.standard_units = 'nM' AND
     act.standard_relation = '=' AND
-    act.standard_type IN ('IC50', 'XC50', 'EC50', 'AC50', 'Ki', 'Kd', 'Potency', 'ED50') AND
+    act.standard_type IN ('Ki', 'Kd') AND
     (act.data_validity_comment IS NULL OR act.data_validity_comment = 'Manually validated');
 
-\COPY public.smile_kinase_kd_ki TO '/home/leon/Desktop/autoencoder_chembl_pkidb/Filters/1_chembl/verify_/manual_validated/kinase_drug_info_kd_ki_manually_validated.tsv' WITH (FORMAT csv, HEADER, DELIMITER E'\t');
+\COPY public.smile_kinase_kd_ki TO '/home/leon/Desktop/autoencoder_chembl_pkidb/Filters/1_chembl/verify_/manualçy_validated/kinase_drug_info_kd_ki_manually_validated.tsv' WITH (FORMAT csv, HEADER, DELIMITER E'\t');
 
 
 REATE TABLE public.smile_kinase_manually_validated AS
@@ -321,6 +321,6 @@ WHERE
     act.standard_type IN ('IC50', 'XC50', 'EC50', 'AC50', 'Ki', 'Kd', 'Potency', 'ED50') AND
     (act.data_validity_comment IS NULL OR act.data_validity_comment = 'Manually validated');
 
-\COPY public.smile_kinase_manually_validated TO '/home/leon/Desktop/autoencoder_chembl_pkidb/Filters/1_chembl/verify_/manual_validated/kinase_drug_info_all_manually_validated_IC50_XC50_EC50_AC50_k1_kd_potency_ED50.tsv' WITH (FORMAT csv, HEADER, DELIMITER E'\t');
+\COPY public.smile_kinase_manually_validated TO '/home/leon/Desktop/autoencoder_chembl_pkidb/Filters/1_chembl/verify_/manually_validated/kinase_drug_info_all_manually_validated_IC50_XC50_EC50_AC50_k1_kd_potency_ED50.tsv' WITH (FORMAT csv, HEADER, DELIMITER E'\t');
 
 ```
