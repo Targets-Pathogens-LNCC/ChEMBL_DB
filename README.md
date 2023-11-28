@@ -202,7 +202,34 @@ COPY (
         mol.molregno = act.molregno
 ) TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/DATASETS/molecules_with_bio_activities.tsv' WITH DELIMITER E'\t' CSV HEADER;
 
+-- filtrar smiles que possuem kinases como alvo e apresentam pchembl value.
+CREATE TABLE public.smile_kinase AS
+SELECT DISTINCT
+    cs.molregno,
+    t.pref_name AS kinase_alvo,
+    cs.canonical_smiles,
+    act.pchembl_value,
+    d.pref_name AS nome_medicamento
+FROM 
+    compound_structures cs
+JOIN
+    activities act ON cs.molregno = act.molregno
+JOIN
+    assays a ON act.assay_id = a.assay_id
+JOIN
+    target_dictionary t ON a.tid = t.tid
+LEFT JOIN
+    molecule_dictionary d ON cs.molregno = d.molregno
+WHERE 
+    t.pref_name LIKE '%kinase%' AND
+    cs.canonical_smiles IS NOT NULL AND
+    act.pchembl_value IS NOT NULL;
 
+-- Verificar a tabela criada
+SELECT COUNT(*) FROM public.smile_kinase;
+SELECT * FROM public.smile_kinase LIMIT 10;
+
+-- filtrar smiles que possuem kinases como alvo e apresentam pchembl value, kd e ki.
 CREATE TABLE public.smile_kinase_kd_ki AS
 SELECT DISTINCT
     cs.molregno,
