@@ -355,9 +355,6 @@ WHERE
 \COPY public.smile_kinase_manually_validated_kd_ki_ic50 TO '/home/leon/Desktop/autoencoder_chembl_pkidb/1_manually_validated/3_cluster/similarity/kd_ki_ic50/kinase_drug_info_all_manually_validated_IC50__Ki_kd.tsv' WITH (FORMAT csv, HEADER, DELIMITER E'\t');
 
 
-
-
-
 CREATE TABLE public.smile_kinase_manually_validated_kd_ki_ic503 AS
 SELECT DISTINCT
     cs.molregno,
