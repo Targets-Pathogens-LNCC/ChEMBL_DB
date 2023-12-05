@@ -293,7 +293,7 @@ WHERE
 \COPY public.smile_kinase_kd_ki TO '/home/leon/Desktop/autoencoder_chembl_pkidb/Filters/1_chembl/verify_/manualçy_validated/kinase_drug_info_kd_ki_manually_validated.tsv' WITH (FORMAT csv, HEADER, DELIMITER E'\t');
 
 
-REATE TABLE public.smile_kinase_manually_validated AS
+CREATE TABLE public.smile_kinase_manually_validated AS
 SELECT DISTINCT
     cs.molregno,
     t.pref_name AS kinase_alvo,
