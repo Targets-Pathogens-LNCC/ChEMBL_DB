@@ -354,4 +354,39 @@ WHERE
 
 \COPY public.smile_kinase_manually_validated_kd_ki_ic50 TO '/home/leon/Desktop/autoencoder_chembl_pkidb/1_manually_validated/3_cluster/similarity/kd_ki_ic50/kinase_drug_info_all_manually_validated_IC50__Ki_kd.tsv' WITH (FORMAT csv, HEADER, DELIMITER E'\t');
 
+
+
+
+
+CREATE TABLE public.smile_kinase_manually_validated_kd_ki_ic503 AS
+SELECT DISTINCT
+    cs.molregno,
+    t.pref_name AS target_kinase,
+    cs.canonical_smiles,
+    act.standard_value,
+    act.standard_type,
+    act.pchembl_value,
+    d.pref_name AS compound_name
+FROM 
+    compound_structures cs
+JOIN
+    activities act ON cs.molregno = act.molregno
+JOIN
+    assays a ON act.assay_id = a.assay_id
+JOIN
+    target_dictionary t ON a.tid = t.tid
+LEFT JOIN
+    molecule_dictionary d ON cs.molregno = d.molregno
+WHERE 
+    t.pref_name LIKE '%kinase%' AND
+    cs.canonical_smiles IS NOT NULL AND
+    act.standard_value IS NOT NULL AND
+    act.standard_units = 'nM' AND
+    act.standard_value < 10000 AND  -- Adicionado filtro para atividade menor que 10 µM
+    act.standard_relation = '=' AND
+    act.standard_type IN ('IC50', 'Ki', 'Kd') AND
+    (act.data_validity_comment IS NULL OR act.data_validity_comment = 'Manually validated');
+
+\COPY public.smile_kinase_manually_validated_kd_ki_ic503 TO '/home/leon/Desktop/autoencoder_chembl_pkidb/1_manually_validated/3_cluster/similarity/kd_ki_ic50/kinase_drug_info_all_manually_validated_IC50_Ki_kd_10uM.tsv' WITH (FORMAT csv, HEADER, DELIMITER E'\t');
+
 ```
