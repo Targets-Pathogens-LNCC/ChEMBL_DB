@@ -387,7 +387,7 @@ WHERE
 
 \COPY public.smile_kinase_manually_validated_kd_ki_ic99 TO '/home/leon/Desktop/autoencoder_chembl_pkidb/1_chembl_manually_validated/3_manually_validated_nr_kd_ki_10uM/1_database/kinase_drug_info_all_manually_validated_IC50_Ki_kd_10uM_update.tsv' WITH (FORMAT csv, HEADER, DELIMITER E'\t');
 
-psql -U leon -d chembl_33 
+-- psql -U leon -d chembl_33 
 
 CREATE TABLE public.smile_kinase_all_compounds AS
 SELECT DISTINCT
