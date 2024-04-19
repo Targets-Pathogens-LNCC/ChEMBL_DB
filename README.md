@@ -24,23 +24,25 @@ sudo -u postgres psql
 CREATE ROLE leon LOGIN CREATEDB PASSWORD 'your_password_here';
 
 \q
+
+sudo service postgresql stop
 ```
 
 ```bash
 
 # Start PostgreSQL
-brew services start postgresql
+sudo service postgresql start
 
 # Start PostgreSQL and create the `chembl_33` database
-psql -U your_user -d postgres (e.g., sulfierry)
+psql -U your_user -d postgres (e.g., leon)
 create database chembl_33;
 \q
 
 # Restore Database
-pg_restore -U sulfierry -d chembl_33 --no-owner -n public ./chembl_33_postgresql.dmp
+pg_restore -U leon -d chembl_33 --no-owner -n public ./chembl_33_postgresql.dmp
 
 # Acess Database already created
-psql -U sulfierry -d chembl_33
+psql -U leon -d chembl_33
 ```
 
 ## Select all compounds without any filter and create persistent table 'compounds_all'
@@ -54,7 +56,7 @@ FROM public.compound_structures;
 SELECT * FROM public.compounds_all;
 
 -- Save this selection in .tsv
-COPY (SELECT molregno, canonical_smiles FROM public.compound_structures) TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/chembl_33_molecules.tsv' WITH (FORMAT 'csv', DELIMITER E'\t', HEADER);
+COPY (SELECT molregno, canonical_smiles FROM public.compound_structures) TO '/path/to/save/chembl_33_molecules.tsv' WITH (FORMAT 'csv', DELIMITER E'\t', HEADER);
 ```
 ## Create a persistent table 'filtered_chembl_33'
 
