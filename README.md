@@ -12,21 +12,24 @@ The following example is applied to the identification of ligands related to pro
 ## Create the PostgreSQL Role
 
 ```bash
+## Installation, Configuration, and SQL Commands
+sudo apt install postgresql
+sudo service postgresql start
+sudo service postgresql status
+
 # Connect as the PostgreSQL superuser
 sudo -u postgres psql
 
 # Create the 'leon' role with login permissions and database creation rights
+```
+```sql
 CREATE ROLE leon LOGIN CREATEDB PASSWORD 'your_password_here';
 
-# Exit the PostgreSQL prompt
 \q
-``
-
-## Installation, Configuration, and SQL Commands
+```
 
 ```bash
-# Install PostgreSQL
-brew install postgresql
+
 
 # Start PostgreSQL
 brew services start postgresql
