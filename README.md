@@ -8,6 +8,20 @@ Explore the ChEMBL ([Chembl_33](https://ftp.ebi.ac.uk/pub/databases/chembl/ChEMB
 The following example is applied to the identification of ligands related to protein kinases.
 
 
+
+## Create the PostgreSQL Role
+
+```bash
+# Connect as the PostgreSQL superuser
+sudo -u postgres psql
+
+# Create the 'leon' role with login permissions and database creation rights
+CREATE ROLE leon LOGIN CREATEDB PASSWORD 'your_password_here';
+
+# Exit the PostgreSQL prompt
+\q
+``
+
 ## Installation, Configuration, and SQL Commands
 
 ```bash
