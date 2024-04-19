@@ -72,7 +72,7 @@ CREATE TABLE public.filtered_chembl_33_IC50 AS (
 );
 
 -- Export the data to a .tsv file
-COPY public.filtered_chembl_33_IC50 TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/filtered_chembl_33_IC50.tsv' WITH (FORMAT 'csv', DELIMITER E'\t', HEADER);
+COPY public.filtered_chembl_33_IC50 TO '/path/to/save/filtered_chembl_33_IC50.tsv' WITH (FORMAT 'csv', DELIMITER E'\t', HEADER);
 
 ```
 ## Create the 'kinase_ligand' table in the 'public' schema of 'chembl_33'
@@ -103,10 +103,10 @@ GROUP BY
     t.pref_name;
 
 -- Export the data to a .tsv file
-COPY public.filtered_chembl_33_IC50 TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/filtered_chembl_33_IC50.tsv' WITH (FORMAT 'csv', DELIMITER E'\t', HEADER);
+COPY public.filtered_chembl_33_IC50 TO '/path/to/save/filtered_chembl_33_IC50.tsv' WITH (FORMAT 'csv', DELIMITER E'\t', HEADER);
 
 -- To retrieve and save all unique kinases (non-redundant) present in the kinase_ligand table:
-COPY (SELECT DISTINCT kinase_name FROM public.kinase_ligand) TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/kinase_all_chembl_33.tsv' WITH CSV HEADER DELIMITER E'\t';
+COPY (SELECT DISTINCT kinase_name FROM public.kinase_ligand) TO '/path/to/save/kinase_all_chembl_33.tsv' WITH CSV HEADER DELIMITER E'\t';
 
                                                                   
 ```
@@ -144,10 +144,10 @@ COPY (
         ligands_per_kinase DESC, k.kinase_name
 )
 -- Specify the location and format of the file to which the data will be copied
-TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/kinase_ligand_chembl_33.tsv' WITH CSV HEADER DELIMITER E'\t';
+TO '/path/to/save/kinase_ligand_chembl_33.tsv' WITH CSV HEADER DELIMITER E'\t';
 
 -- To retrieve and save the top 10 kinases with the highest number of ligands:
-COPY (SELECT kinase_name, SUM(number_of_ligands) as total_ligands FROM public.kinase_ligand GROUP BY kinase_name ORDER BY total_ligands DESC LIMIT 10) TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/kinase_ligand_top10_chembl_33.tsv' WITH CSV HEADER DELIMITER E'\t';
+COPY (SELECT kinase_name, SUM(number_of_ligands) as total_ligands FROM public.kinase_ligand GROUP BY kinase_name ORDER BY total_ligands DESC LIMIT 10) TO '/path/to/save/kinase_ligand_top10_chembl_33.tsv' WITH CSV HEADER DELIMITER E'\t';
 
 ```
 ## SQL Utils
@@ -216,7 +216,7 @@ COPY (
         ) act
     ON
         mol.molregno = act.molregno
-) TO '/Users/sulfierry/Desktop/thil/chemblDB/chembl_33/DATASETS/molecules_with_bio_activities.tsv' WITH DELIMITER E'\t' CSV HEADER;
+) TO '/path/to/save/molecules_with_bio_activities.tsv' WITH DELIMITER E'\t' CSV HEADER;
 
 -- filtrar smiles que possuem kinases como alvo e apresentam pchembl value.
 CREATE TABLE public.smile_kinase AS
@@ -275,7 +275,7 @@ WHERE
 SELECT COUNT(*) FROM public.smile_kinase_kd_ki;
 SELECT * FROM public.smile_kinase_kd_ki LIMIT 10;
 
-\COPY public.kinase_drug_info TO '/home/leon/Desktop/chembl_33/install_chembl_DB/smile_kinase_kd_ki.tsv' WITH (FORMAT csv, HEADER, DELIMITER E'\t');
+\COPY public.kinase_drug_info TO '/path/to/save/smile_kinase_kd_ki.tsv' WITH (FORMAT csv, HEADER, DELIMITER E'\t');
 
 
 CREATE TABLE public.smile_kinase_kd_ki AS
@@ -306,7 +306,7 @@ WHERE
     act.standard_type IN ('Ki', 'Kd') AND
     (act.data_validity_comment IS NULL OR act.data_validity_comment = 'Manually validated');
 
-\COPY public.smile_kinase_kd_ki TO '/home/leon/Desktop/autoencoder_chembl_pkidb/Filters/1_chembl/verify_/manualçy_validated/kinase_drug_info_kd_ki_manually_validated.tsv' WITH (FORMAT csv, HEADER, DELIMITER E'\t');
+\COPY public.smile_kinase_kd_ki TO '/path/to/save/kinase_drug_info_kd_ki_manually_validated.tsv' WITH (FORMAT csv, HEADER, DELIMITER E'\t');
 
 
 CREATE TABLE public.smile_kinase_manually_validated AS
@@ -337,7 +337,7 @@ WHERE
     act.standard_type IN ('IC50', 'XC50', 'EC50', 'AC50', 'Ki', 'Kd', 'Potency', 'ED50') AND
     (act.data_validity_comment IS NULL OR act.data_validity_comment = 'Manually validated');
 
-\COPY public.smile_kinase_manually_validated TO '/home/leon/Desktop/autoencoder_chembl_pkidb/Filters/1_chembl/verify_/manually_validated/kinase_drug_info_all_manually_validated_IC50_XC50_EC50_AC50_k1_kd_potency_ED50.tsv' WITH (FORMAT csv, HEADER, DELIMITER E'\t');
+\COPY public.smile_kinase_manually_validated TO '/path/to/save/kinase_drug_info_all_manually_validated_IC50_XC50_EC50_AC50_k1_kd_potency_ED50.tsv' WITH (FORMAT csv, HEADER, DELIMITER E'\t');
 
 
 CREATE TABLE public.smile_kinase_manually_validated_kd_ki_ic50 AS
@@ -368,7 +368,7 @@ WHERE
     act.standard_type IN ('IC50', 'Ki', 'Kd') AND
     (act.data_validity_comment IS NULL OR act.data_validity_comment = 'Manually validated');
 
-\COPY public.smile_kinase_manually_validated_kd_ki_ic50 TO '/home/leon/Desktop/autoencoder_chembl_pkidb/1_manually_validated/3_cluster/similarity/kd_ki_ic50/kinase_drug_info_all_manually_validated_IC50__Ki_kd.tsv' WITH (FORMAT csv, HEADER, DELIMITER E'\t');
+\COPY public.smile_kinase_manually_validated_kd_ki_ic50 TO '/path/to/save/kinase_drug_info_all_manually_validated_IC50__Ki_kd.tsv' WITH (FORMAT csv, HEADER, DELIMITER E'\t');
 
 
 CREATE TABLE public.smile_kinase_manually_validated_kd_ki_ic99 AS
@@ -401,7 +401,7 @@ WHERE
     act.standard_relation = '=' AND
     (act.data_validity_comment IS NULL OR act.data_validity_comment = 'Manually validated');
 
-\COPY public.smile_kinase_manually_validated_kd_ki_ic99 TO '/home/leon/Desktop/autoencoder_chembl_pkidb/1_chembl_manually_validated/3_manually_validated_nr_kd_ki_10uM/1_database/kinase_drug_info_all_manually_validated_IC50_Ki_kd_10uM_update.tsv' WITH (FORMAT csv, HEADER, DELIMITER E'\t');
+\COPY public.smile_kinase_manually_validated_kd_ki_ic99 TO '/path/to/save/kinase_drug_info_all_manually_validated_IC50_Ki_kd_10uM_update.tsv' WITH (FORMAT csv, HEADER, DELIMITER E'\t');
 
 -- psql -U leon -d chembl_33 
 
@@ -434,6 +434,6 @@ WHERE
     act.standard_units = 'nM' AND
     (act.data_validity_comment IS NULL OR act.data_validity_comment = 'Manually validated');
 
-\COPY public.smile_kinase_all_compounds TO '/caminho/para/o/arquivo/kinase_all_compounds.tsv' WITH (FORMAT csv, HEADER, DELIMITER E'\t');
+\COPY public.smile_kinase_all_compounds TO '/path/to/save/kinase_all_compounds.tsv' WITH (FORMAT csv, HEADER, DELIMITER E'\t');
 
 ```
